@@ -13,32 +13,39 @@ const port = process.env.PORT || 4000;
 // ✅ Allowed frontend URLs
 const allowedOrigins = [
   "https://mealrush.vercel.app", // user panel
-  "https://mealrush-f6y7-aq0jkkoo7-vasanths-projects-567b4437.vercel.app", // admin panel
+  "https://mealrush-f6y7.vercel.app", // admin panel (shortened deployment URL)
   "http://localhost:5173" // dev local
 ];
 
-// ✅ CORS middleware with config
+// ✅ CORS middleware with dynamic origin checking
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
-// Middlewares
+// ✅ Middlewares
 app.use(express.json());
 
-// DB connection
+// ✅ DB connection
 connectDB();
 
-// API routes
+// ✅ API routes
 app.use("/api/user", userRouter);
 app.use("/api/food", foodRouter);
 app.use("/images", express.static("uploads"));
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 
-// Root route
+// ✅ Root route
 app.get("/", (req, res) => {
   res.send("API Working");
 });
 
+// ✅ Start server
 app.listen(port, () => console.log(`Server started on http://localhost:${port}`));
