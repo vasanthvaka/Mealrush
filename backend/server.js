@@ -10,20 +10,19 @@ import 'dotenv/config';
 const app = express();
 const port = process.env.PORT || 4000;
 
-// ✅ Allowed frontend URLs
-const allowedOrigins = [
-  "https://mealrush.vercel.app", // user panel
-  "https://mealrush-f6y7.vercel.app", // admin panel (shortened deployment URL)
-  "http://localhost:5173" // dev local
-];
-
-// ✅ CORS middleware with dynamic origin checking
+// ✅ CORS middleware with wildcard Vercel handling
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true); // allow server-to-server or curl
+    const allowed = [
+      "https://mealrush.vercel.app",
+      "http://localhost:5173"
+    ];
+    const isAllowed = allowed.includes(origin) || origin.endsWith(".vercel.app");
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true
